@@ -189,7 +189,7 @@ public class RegistrationFrame extends JFrame {
                         .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
 
                 // Connect to DB
-                Connection conn = DriverManager.getConnection("jdbc:sqlite:users.db");
+                Connection conn = DatabaseHelper.getConnection();
 
                 // Check for existing username
                 PreparedStatement checkUsername = conn.prepareStatement("SELECT id FROM users WHERE username = ?");

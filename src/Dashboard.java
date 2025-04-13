@@ -32,7 +32,7 @@ public class Dashboard extends JFrame {
         usersPanel.add(usersLabel);
 
         try {
-            Connection conn = DriverManager.getConnection("jdbc:sqlite:users.db");
+            Connection conn = DatabaseHelper.getConnection();
             Statement stmt = conn.createStatement();
             ResultSet rs = stmt.executeQuery("SELECT username, date_registered FROM users ORDER BY date_registered DESC");
 
