@@ -3,11 +3,8 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 
 public class RegistrationFrame extends JFrame {
@@ -192,7 +189,7 @@ public class RegistrationFrame extends JFrame {
                 Connection conn = DatabaseHelper.getConnection();
 
                 // Check for existing username
-                PreparedStatement checkUsername = conn.prepareStatement("SELECT id FROM users WHERE username = ?");
+                PreparedStatement checkUsername = conn.prepareStatement("SELECT id FROM portuguez WHERE username = ?");
                 checkUsername.setString(1, username);
                 ResultSet rsUser = checkUsername.executeQuery();
                 if (rsUser.next()) {
@@ -206,7 +203,7 @@ public class RegistrationFrame extends JFrame {
                 checkUsername.close();
 
                 // Check for existing email
-                PreparedStatement checkEmail = conn.prepareStatement("SELECT id FROM users WHERE email = ?");
+                PreparedStatement checkEmail = conn.prepareStatement("SELECT id FROM portuguez WHERE email = ?");
                 checkEmail.setString(1, email);
                 ResultSet rsEmail = checkEmail.executeQuery();
                 if (rsEmail.next()) {
@@ -220,7 +217,7 @@ public class RegistrationFrame extends JFrame {
                 checkEmail.close();
 
                 // Insert new user
-                String sql = "INSERT INTO users (username, password, first_name, middle_initial, last_name, email, birthday, date_registered, role) " +
+                String sql = "INSERT INTO portuguez (username, password, first_name, middle_initial, last_name, email, birthday, date_registered, role) " +
                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'user');";
 
                 PreparedStatement pstmt = conn.prepareStatement(sql);
