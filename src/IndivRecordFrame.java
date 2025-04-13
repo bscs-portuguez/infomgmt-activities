@@ -1,58 +1,50 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.print.*;
 import java.sql.*;
 
-public class IndivRecordFrame extends JFrame{
+public class IndivRecordFrame extends JFrame implements Printable {
+    private final JPanel recordPanel;
+
     IndivRecordFrame(String username) {
         Elements element = new Elements();
 
-        setSize(500, 500);
+        setSize(595, 842); // Approx. A4 size in pixels at 72 DPI
         setResizable(false);
         setLayout(null);
         setTitle("Individual Record");
         getContentPane().setBackground(element.beige);
 
-        JLabel title = new JLabel();
-        title.setBounds(0, 30, 485, 50);
+        recordPanel = new JPanel(null);
+        recordPanel.setBounds(50, 50, 495, 700); // add margins
+        recordPanel.setBackground(Color.WHITE);
+
+        JLabel title = new JLabel(username + "'s Record", SwingConstants.CENTER);
+        title.setBounds(0, 20, 495, 40);
         title.setFont(element.h2Font);
-        title.setText(username + "'s Record");
         title.setForeground(Color.BLACK);
-        title.setHorizontalAlignment(SwingConstants.CENTER);
 
         JLabel uNameLabel = new JLabel();
-        uNameLabel.setBounds(20, 90, 485, 50);
-        uNameLabel.setFont(element.pFont);
-        uNameLabel.setForeground(Color.BLACK);
-
         JLabel fNameLabel = new JLabel();
-        fNameLabel.setBounds(20, 140, 485, 50);
-        fNameLabel.setFont(element.pFont);
-        fNameLabel.setForeground(Color.BLACK);
-
         JLabel mInitialLabel = new JLabel();
-        mInitialLabel.setBounds(20, 190, 485, 50);
-        mInitialLabel.setFont(element.pFont);
-        mInitialLabel.setForeground(Color.BLACK);
-
         JLabel lNameLabel = new JLabel();
-        lNameLabel.setBounds(20, 240, 485, 50);
-        lNameLabel.setFont(element.pFont);
-        lNameLabel.setForeground(Color.BLACK);
-
         JLabel emailLabel = new JLabel();
-        emailLabel.setBounds(20, 290, 485, 50);
-        emailLabel.setFont(element.pFont);
-        emailLabel.setForeground(Color.BLACK);
-
         JLabel birthdayLabel = new JLabel();
-        birthdayLabel.setBounds(20, 340, 485, 50);
-        birthdayLabel.setFont(element.pFont);
-        birthdayLabel.setForeground(Color.BLACK);
-
         JLabel dateLabel = new JLabel();
-        dateLabel.setBounds(20, 390, 485, 50);
-        dateLabel.setFont(element.pFont);
-        dateLabel.setForeground(Color.BLACK);
+
+        JLabel[] labels = {
+                uNameLabel, fNameLabel, mInitialLabel,
+                lNameLabel, emailLabel, birthdayLabel, dateLabel
+        };
+
+        int y = 80;
+        for (JLabel label : labels) {
+            label.setBounds(30, y, 435, 40);
+            label.setFont(element.pFont);
+            label.setForeground(Color.BLACK);
+            recordPanel.add(label);
+            y += 50;
+        }
 
         try {
             Connection conn = DatabaseHelper.getConnection();
@@ -61,41 +53,59 @@ public class IndivRecordFrame extends JFrame{
             stmt.setString(1, username);
 
             ResultSet rs = stmt.executeQuery();
-
             if (rs.next()) {
-                String uname = rs.getString("username");
-                String fName = rs.getString("first_name");
-                String mInitial = rs.getString("middle_initial");
-                String lname = rs.getString("last_name");
-                String email = rs.getString("email");
-                String birthday = rs.getString("birthday");
-                String dateRegistered = rs.getString("date_registered");
-
-                uNameLabel.setText("Username: " + uname);
-                fNameLabel.setText("First Name: " + fName);
-                mInitialLabel.setText("Middle Initial: " + mInitial);
-                lNameLabel.setText("Last Name: " + lname);
-                emailLabel.setText("Email: " + email);
-                birthdayLabel.setText("Birthday: " + birthday);
-                dateLabel.setText("Registered on: " + dateRegistered);
+                uNameLabel.setText("Username: " + rs.getString("username"));
+                fNameLabel.setText("First Name: " + rs.getString("first_name"));
+                mInitialLabel.setText("Middle Initial: " + rs.getString("middle_initial"));
+                lNameLabel.setText("Last Name: " + rs.getString("last_name"));
+                emailLabel.setText("Email: " + rs.getString("email"));
+                birthdayLabel.setText("Birthday: " + rs.getString("birthday"));
+                dateLabel.setText("Registered on: " + rs.getString("date_registered"));
             }
 
             rs.close();
             stmt.close();
             conn.close();
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Failed to load users: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Failed to load user: " + e.getMessage());
             e.printStackTrace();
         }
 
-        add(fNameLabel);
-        add(uNameLabel);
-        add(lNameLabel);
-        add(mInitialLabel);
-        add(emailLabel);
-        add(birthdayLabel);
-        add(dateLabel);
-        add(title);
+        JButton printButton = new JButton("Print");
+        printButton.setFont(element.h2Font);
+        printButton.setBounds(240, 770, 100, 30);
+        printButton.setBackground(element.red);
+        printButton.setForeground(Color.WHITE);
+        printButton.addActionListener(e -> {
+            PrinterJob job = PrinterJob.getPrinterJob();
+            job.setJobName("Print");
+
+            job.setPrintable(this);
+
+            boolean accepted = job.printDialog();
+            if (accepted) {
+                try {
+                    job.print();
+                } catch (PrinterException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        recordPanel.add(title);
+        add(recordPanel);
+        add(printButton);
         setVisible(true);
+    }
+
+    @Override
+    public int print(Graphics g, PageFormat pf, int pageIndex) throws PrinterException {
+        if (pageIndex > 0) return NO_SUCH_PAGE;
+
+        Graphics2D g2d = (Graphics2D) g;
+        g2d.translate(pf.getImageableX(), pf.getImageableY());
+        recordPanel.printAll(g);
+
+        return PAGE_EXISTS;
     }
 }
