@@ -8,7 +8,7 @@ public class OTPFrame extends JFrame {
     private Timer timer;
     private JButton sendCodeBtn;
 
-    OTPFrame() {
+    OTPFrame(String username) {
         Elements element = new Elements();
 
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -68,8 +68,11 @@ public class OTPFrame extends JFrame {
         verifyBtn.addActionListener(e -> {
             if (!(codeField.getText().equals(String.valueOf(code)))) {
                 JOptionPane.showMessageDialog(new JFrame(), "Wrong code. Try again.");
+            } else if (username.equals("admin")) {
+                new Dashboard();
+                dispose();
             } else {
-                HomeFrame home = new HomeFrame();
+                new HomeFrame();
                 dispose();
             }
         });

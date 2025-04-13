@@ -81,7 +81,7 @@ public class LoginFrame extends JFrame {
             String password = new String(pwField.getPassword());
 
             if (username.equals("admin") && password.equals("password")) {
-                new Dashboard();
+                new OTPFrame("admin");
                 dispose();
             } else {
                 try (Connection conn = DatabaseHelper.getConnection()) {
@@ -94,7 +94,7 @@ public class LoginFrame extends JFrame {
 
                     if (rs.next()) {
                         // Credentials are valid, go to OTPFrame
-                        new OTPFrame();
+                        new OTPFrame("user");
                         dispose();
                     } else {
                         // No match found
