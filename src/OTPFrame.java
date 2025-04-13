@@ -49,7 +49,7 @@ public class OTPFrame extends JFrame {
         sendCodeBtn = new JButton();
         sendCodeBtn.setBounds(0, 90, 185, 40);
         sendCodeBtn.setBackground(element.yellow);
-        sendCodeBtn.setFont(element.h2Font);
+        sendCodeBtn.setFont(element.pFont);
         sendCodeBtn.setForeground(Color.BLACK);
         sendCodeBtn.setText("Send Code");
         sendCodeBtn.addActionListener(e -> {
@@ -77,7 +77,7 @@ public class OTPFrame extends JFrame {
         JButton cancelBtn = new JButton();
         cancelBtn.setBounds(390, 425, 85, 30);
         cancelBtn.setBackground(element.red);
-        cancelBtn.setFont(element.pFont);
+        cancelBtn.setFont(element.sFont);
         cancelBtn.setForeground(Color.WHITE);
         cancelBtn.setText("Cancel");
         cancelBtn.addActionListener(e -> {

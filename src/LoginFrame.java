@@ -2,6 +2,9 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ItemEvent;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class LoginFrame extends JFrame {
     LoginFrame() {
@@ -57,7 +60,7 @@ public class LoginFrame extends JFrame {
         JCheckBox showPwBtn = new JCheckBox();
         showPwBtn.setFont(element.pFont);
         showPwBtn.setText("Show");
-        showPwBtn.setBounds(225, 140, 70, 30);
+        showPwBtn.setBounds(225, 140, 100, 30);
         showPwBtn.setVerticalAlignment(SwingConstants.CENTER);
         showPwBtn.setBackground(element.red);
         showPwBtn.setForeground(Color.WHITE);
@@ -69,19 +72,51 @@ public class LoginFrame extends JFrame {
         });
 
         JButton loginBtn = new JButton();
-        loginBtn.setBounds(175, 325, 150, 40);
+        loginBtn.setBounds(87, 325, 150, 40);
         loginBtn.setText("Login");
         loginBtn.setBackground(element.yellow);
         loginBtn.setFont(element.h2Font);
         loginBtn.addActionListener(e -> {
-            if (!(unTextField.getText().equals("admin"))) {
-                JOptionPane.showMessageDialog(new JFrame(), "Invalid Username");
-            } else if (!(new String(pwField.getPassword()).equals("password"))) {
-                JOptionPane.showMessageDialog(new JFrame(), "Invalid Password");
-            } else {
-                OTPFrame home = new OTPFrame();
+            String username = unTextField.getText().trim();
+            String password = new String(pwField.getPassword());
+
+            if (username.equals("admin") && password.equals("password")) {
+                new Dashboard();
                 dispose();
+            } else {
+                try (Connection conn = DatabaseHelper.getConnection()) {
+                    String query = "SELECT * FROM users WHERE username = ? AND password = ?";
+                    PreparedStatement stmt = conn.prepareStatement(query);
+                    stmt.setString(1, username);
+                    stmt.setString(2, password);
+
+                    ResultSet rs = stmt.executeQuery();
+
+                    if (rs.next()) {
+                        // Credentials are valid, go to OTPFrame
+                        new OTPFrame();
+                        dispose();
+                    } else {
+                        // No match found
+                        JOptionPane.showMessageDialog(this, "Invalid username or password.");
+                    }
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Database error: " + ex.getMessage());
+                }
             }
+        });
+
+
+        JButton registerBtn = new JButton();
+        registerBtn.setBounds(247, 325, 150, 40);
+        registerBtn.setText("Register");
+        registerBtn.setBackground(element.yellow);
+        registerBtn.setFont(element.h2Font);
+        registerBtn.addActionListener(e -> {
+            RegistrationFrame register = new RegistrationFrame();
+            dispose();
         });
 
         JLabel unameLabel = new JLabel();
@@ -94,7 +129,7 @@ public class LoginFrame extends JFrame {
         pWordLabel.setText("Password: password");
         pWordLabel.setForeground(Color.WHITE);
         pWordLabel.setFont(element.sFont);
-        pWordLabel.setBounds(5, 440, 100, 20);
+        pWordLabel.setBounds(5, 440, 150, 20);
 
         form.add(showPwBtn);
         form.add(pwLabel);
@@ -104,6 +139,7 @@ public class LoginFrame extends JFrame {
 
         add(pWordLabel);
         add(unameLabel);
+        add(registerBtn);
         add(loginBtn);
         add(form);
         add(title);
